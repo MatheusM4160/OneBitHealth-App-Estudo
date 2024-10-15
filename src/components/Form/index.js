@@ -1,19 +1,21 @@
 import React, {useState} from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Vibration, Pressable, Keyboard } from "react-native";
 import ResultImc from "./ResultImc";
 import styles from "./style";
 
 
-export default function Form(){
-
-const [height, setHeigth] = useState(null)
-const [weight, setWeight] = useState(null)
-const [messageImc, setMessageImc] = useState("Preencha peso e altura")
-const [imc, setImc] = useState(null)
-const [textButton, setTextButton] = useState("Calcular")
+export default function Form(props){
+    const [height, setHeigth] = useState(null);
+    const [weight, setWeight] = useState(null);
+    const [messageImc, setMessageImc] = useState("Preencha peso e altura");
+    const [imc, setImc] = useState(null);
+    const [textButton, setTextButton] = useState("Calcular");
+    const [errorMessage, setErroMessage] = useState(null);
 
 function imcCalculator(){
-    return setImc((weight/(height*height)).toFixed(2))
+    let heightFormat = height.replace(',', '.')
+    let weightFormat = weight.replace(',', '.')
+    return setImc((weightFormat/(heightFormat*heightFormat)).toFixed(2))
 }
 
 function validationImc(){
@@ -23,17 +25,24 @@ function validationImc(){
         setWeight(null)
         setMessageImc("Seu IMC é igual:")
         setTextButton("Calcular Novamente")
+        setErroMessage(null)
         return
     }
     setImc(null)
     setTextButton("Calcular")
     setMessageImc("Preencha peso e altura")
+    Vibration.vibrate()
+    setErroMessage('Campo Obrigatório*')
+
 }
 
     return(
-        <View style={styles.formContext}>
+        <Pressable
+          onPress={Keyboard.dismiss}
+          style={styles.formContext}>
             <View style={styles.form}>
                 <Text style={styles.formLabel}>Altura</Text>
+                <Text style={styles.errorMessage}>{errorMessage}</Text>
                 <TextInput
                 style={styles.input}
                 onChangeText={setHeigth}
@@ -43,6 +52,7 @@ function validationImc(){
                 />
 
                 <Text style={styles.formLabel}>Peso</Text>
+                <Text style={styles.errorMessage}>{errorMessage}</Text>
                 <TextInput
                 style={styles.input}
                 onChangeText={setWeight}
@@ -59,6 +69,6 @@ function validationImc(){
             </View>
             
             <ResultImc messageResultImc={messageImc} resultImc={imc}/>
-        </View>
+        </Pressable>
     );
 }
